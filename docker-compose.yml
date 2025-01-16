@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  # Eureka Discovery Service
+  eureka-service:
+    build: 
+      context: ./eureka-discovery-service
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Gateway Service
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    depends_on:
+      eureka-service:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka/
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      eureka-service:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth_db
+    links:
+      - auth-db
+
+  # Auth Database
+  auth-db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_DB=auth_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+
+  # Client Service
+  client-service:
+    build:
+      context: ./client-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      eureka-service:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://client-db:5432/client_db
+    links:
+      - client-db
+
+  # Client Database
+  client-db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_DB=client_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - client_data:/var/lib/postgresql/data
+
+  # Product Service
+  produit-service:
+    build:
+      context: ./produit-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    depends_on:
+      eureka-service:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://product-db:5432/product_db
+    links:
+      - product-db
+
+  # Product Database
+  product-db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_DB=product_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - product_data:/var/lib/postgresql/data
+
+  # Invoice Service
+  facture-service:
+    build:
+      context: ./facture-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    depends_on:
+      eureka-service:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://invoice-db:5432/invoice_db
+    links:
+      - invoice-db
+
+  # Invoice Database
+  invoice-db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_DB=invoice_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - invoice_data:/var/lib/postgresql/data
+
+  # Frontend UI
+  frontend:
+    build:
+      context: ./invoice-management-ui
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway-service
+
+volumes:
+  auth_data:
+  client_data:
+  product_data:
+  invoice_data:

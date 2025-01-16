@@ -1,0 +1,91 @@
+.invoice-form-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.items-section {
+  margin: 24px 0;
+
+  .items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+    }
+  }
+}
+
+.item-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    &:nth-child(1) {
+      flex: 2;
+    }
+    &:nth-child(2) {
+      flex: 1;
+    }
+    &:nth-child(3),
+    &:nth-child(4) {
+      flex: 1;
+    }
+  }
+
+  button {
+    margin-top: -20px;
+  }
+}
+
+.notes-field {
+  width: 100%;
+  margin: 16px 0;
+}
+
+.totals-section {
+  margin: 24px 0;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .grand-total {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
